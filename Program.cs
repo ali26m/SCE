@@ -7,17 +7,18 @@ class Program
     static void Main(string[] args)
     {
         // Path to the Python script
+        string mypath = "C:\Users\AbdulRahman\Desktop\collage PROJECTS\IMAGE_PROCESSING PROJECT\image-processing-project\app.py";
         string pythonScriptPath = @"C:\\Users\\alihi\\ipynb\\Image Processing\\image-processing-project\\app.py";
 
         // Path to the image
-        string imagePath = @"C:\\Users\\alihi\\ipynb\\Image Processing\\image-processing-project\\skip.jpg";
+        string imagePath = @"C:\Users\AbdulRahman\Desktop\collage PROJECTS\IMAGE_PROCESSING PROJECT\image-processing-project\skip.jpg";
 
 
         // Start the Python process
         ProcessStartInfo psi = new ProcessStartInfo
         {
-            FileName = "C:\\Users\\alihi\\AppData\\Local\\Programs\\Python\\Python312\\python.exe", // Ensure Python is in PATH
-            Arguments = $"\"{pythonScriptPath}\" \"{imagePath}\"", // Pass script and image path
+            FileName = "C:\ProgramData\anaconda3\python.exe", // Ensure Python is in PATH
+            Arguments = $"\"{mypath}\" \"{imagePath}\"", // Pass script and image path
             RedirectStandardOutput = true,
             UseShellExecute = false,
             CreateNoWindow = true
