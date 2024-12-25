@@ -1,11 +1,6 @@
 import cv2
-import pyautogui
 import mediapipe as mp
 import numpy as np
-import time
-
-isplaying = False
-last_toggle_time = 0
 
 #-------------------------------------------------------------------------------------------
 def calculate_angle(a,b,c):
@@ -22,12 +17,10 @@ def calculate_angle(a,b,c):
     return angle
 
 #-------------------------------------------------------------------------------------------
-def volume(hand_landmarks):
-    index_finger_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y
-    index_finger_mid = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP].y
-    wrist = hand_landmarks.landmark[mp_hands.HandLandmark.WRIST].y
+def volume(hand_landmarks, index_tip, wrist):
+    index_mid = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_MCP].y
 
-    angle = calculate_angle(index_finger_tip, index_finger_mid, wrist)
+    angle = calculate_angle(index_tip, index_mid, wrist)
 
     if angle == 180.0:
          return 'volumeup'
@@ -35,22 +28,13 @@ def volume(hand_landmarks):
          return 'volumedown'
             
 #-------------------------------------------------------------------------------------------
-def playback(hand_landmarks,pinky_tip):
-    global isplaying, last_toggle_time
-    
-    index_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y
-    middle_tip = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y
-    thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].y
-    
-    current_time = time.time()
-    if index_tip < thumb_tip and middle_tip < thumb_tip and pinky_tip > thumb_tip and current_time - last_toggle_time > 4:
-        isplaying = not isplaying
-        last_toggle_time = current_time
-    print(isplaying)
+def playback(thumb_tip, index_tip, middle_tip, pinky_tip):
+        
+    if index_tip < thumb_tip and middle_tip < thumb_tip and pinky_tip > thumb_tip:
+        return 'playback'
 
 #-------------------------------------------------------------------------------------------
 def skip(hand_landmarks):
-    global last_toggle_time
     
     tips = [
         hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP],
@@ -68,16 +52,11 @@ def skip(hand_landmarks):
     # Check if each finger tip is above its corresponding MCP joint
     open_fist = all(tip.y < mcp.y for tip, mcp in zip(tips, mcps))
     
-    current_time = time.time()
-    if open_fist == True and current_time - last_toggle_time > 1:
-        print("skipped 5 seconds")
-        last_toggle_time = current_time
-        
-    return open_fist
+    if open_fist == True:
+        return open_fist
 
 #-------------------------------------------------------------------------------------------
 def drawback(hand_landmarks):
-    global last_toggle_time
     
     tips = [
         hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP],
@@ -95,12 +74,8 @@ def drawback(hand_landmarks):
     # Check if each finger tip is below its corresponding MCP joint (closed fist condition)
     closed_fist = all(tip.y > mcp.y for tip, mcp in zip(tips, mcps))
     
-    current_time = time.time()
-    if closed_fist == True and current_time - last_toggle_time > 1:
-        print("drawbacked 5 seconds")
-        last_toggle_time = current_time
-    
-    return closed_fist
+    if closed_fist == True:
+        return closed_fist
 
 #-------------------------------------------------------------------------------------------
 
@@ -110,10 +85,7 @@ hands = mp_hands.Hands(static_image_mode=False, max_num_hands=1,
 
 mp_drawing = mp.solutions.drawing_utils
 
-# frame =cv2.imread("C:\\Users\\alihi\\ipynb\\Image Processing\\skip.jpg")
 def get_gesture_from_frame(frame):
-    # frame = cv2.imread("C:\\Users\\AbdulRahman\\Desktop\\collage PROJECTS\\IMAGE_PROCESSING PROJECT\\image-processing-project\\testCases\\volup.jpg")
-
 
     image_rgb = cv2.cvtColor(frame, cv2.COLOR_BGR2RGB)
 
@@ -126,10 +98,10 @@ def get_gesture_from_frame(frame):
 
             try:
 
-                index_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y
-                pinky_tip = hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].y
-                middle_tip = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y
                 thumb_tip = hand_landmarks.landmark[mp_hands.HandLandmark.THUMB_TIP].y
+                index_tip = hand_landmarks.landmark[mp_hands.HandLandmark.INDEX_FINGER_TIP].y
+                middle_tip = hand_landmarks.landmark[mp_hands.HandLandmark.MIDDLE_FINGER_TIP].y
+                pinky_tip = hand_landmarks.landmark[mp_hands.HandLandmark.PINKY_TIP].y
                 wrist = hand_landmarks.landmark[mp_hands.HandLandmark.WRIST].y
 
                 if skip(hand_landmarks):
@@ -139,10 +111,15 @@ def get_gesture_from_frame(frame):
                     return "drawback"
 
                 elif index_tip < thumb_tip and middle_tip < thumb_tip and pinky_tip > thumb_tip:
-                    playback(hand_landmarks,pinky_tip)
+                    return playback(thumb_tip, index_tip, middle_tip, pinky_tip)
 
                 elif index_tip < wrist and pinky_tip < wrist:
-                    return volume(hand_landmarks)
+                    return volume(hand_landmarks, index_tip, wrist)
 
             except Exception as error:
                 print(error)
+                return "error"
+
+# Testing
+# frame =cv2.imread("C:\\Users\\alihi\\ipynb\\Image Processing\\image-processing-project\\testCases\\volup.jpg")
+# print(get_gesture_from_frame(frame))
