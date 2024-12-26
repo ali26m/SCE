@@ -4,15 +4,9 @@ import numpy as np
 
 #-------------------------------------------------------------------------------------------
 def calculate_angle(a,b,c):
-    a = np.array(a) # First
-    b = np.array(b) # Mid
-    c = np.array(c) # End
     
     radians = np.arctan2(c-b, c-b) - np.arctan2(a-b, a-b)
     angle = np.abs(radians*180.0/np.pi)
-    
-    if angle >180.0:
-        angle = 360-angle
         
     return angle
 
@@ -54,6 +48,8 @@ def skip(hand_landmarks):
     
     if open_fist == True:
         return open_fist
+    
+    return False
 
 #-------------------------------------------------------------------------------------------
 def drawback(hand_landmarks):
@@ -113,7 +109,7 @@ def get_gesture_from_frame(frame):
                 elif index_tip < thumb_tip and middle_tip < thumb_tip and pinky_tip > thumb_tip:
                     return playback(thumb_tip, index_tip, middle_tip, pinky_tip)
 
-                elif index_tip < wrist and pinky_tip < wrist:
+                elif index_tip < wrist:
                     return volume(hand_landmarks, index_tip, wrist)
 
             except Exception as error:
@@ -121,5 +117,5 @@ def get_gesture_from_frame(frame):
                 return "error"
 
 # Testing
-# frame =cv2.imread("C:\\Users\\alihi\\ipynb\\Image Processing\\image-processing-project\\testCases\\volup.jpg")
+# frame =cv2.imread("C:\\Users\\alihi\\ipynb\\Image Processing\\image-processing-project\\testCases\\pause.jpg")
 # print(get_gesture_from_frame(frame))
