@@ -1,7 +1,7 @@
 from flask import Flask, request, jsonify
 from PIL import Image
 import io
-from app2 import get_gesture_from_frame
+from app import get_gesture_from_frame
 from flask_cors import CORS
 import cv2
 import numpy as np
