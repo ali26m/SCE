@@ -4,6 +4,7 @@ import io
 import cv2
 import mediapipe as mp
 import numpy as np
+import setuptools.dist
 
 #-------------------------------------------------------------------------------------------
 def calculate_angle(a,b,c):
