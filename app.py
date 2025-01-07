@@ -115,7 +115,3 @@ def get_gesture_from_frame(frame):
             except Exception as error:
                 print(error)
                 return "error"
-
-# Testing
-# frame =cv2.imread("C:\\Users\\alihi\\ipynb\\Image Processing\\image-processing-project\\testCases\\pause.jpg")
-# print(get_gesture_from_frame(frame))
